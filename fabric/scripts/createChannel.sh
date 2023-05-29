@@ -6,7 +6,7 @@
 
 CHANNEL_NAME="$1"
 DELAY="$2"
-MAX_RETRY="$3"
+MAX_RETRY=8
 VERBOSE="$4"
 ORG_QNTY=$5
 : ${CHANNEL_NAME:="mychannel"}
