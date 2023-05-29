@@ -15,7 +15,7 @@ var CreateToken = tx.Transaction{
 	Label:       "Create Token",
 	Description: "Create a Token",
 	Method:      "POST",
-	Callers:     []string{"$org3MSP", "$org2MSP", "$org1MSP", "$orgMSP"},
+	Callers:     []string{`$org/dMSP`, "orgMSP"},
 
 	Args: []tx.Argument{
 		{
@@ -43,25 +43,25 @@ var CreateToken = tx.Transaction{
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
 		id, _ := req["id"].(string)
 		prop, _ := req["prop"].(string)
-		quant, _ := req["quant"].(string)
+		quant, _ := req["quant"].(float64)
 
-		tokensMap := make(map[string]interface{})
-		tokensMap["@assetType"] = "token"
-		tokensMap["id"] = id
-		tokensMap["prop"] = prop
-		tokensMap["quant"] = quant
+		tokenMap := make(map[string]interface{})
+		tokenMap["@assetType"] = "token"
+		tokenMap["id"] = id
+		tokenMap["prop"] = prop
+		tokenMap["quant"] = quant
 
-		tokensAsset, err := assets.NewAsset(tokensMap)
+		tokenAsset, err := assets.NewAsset(tokenMap)
 		if err != nil {
 			return nil, errors.WrapError(err, "Failed to create a new asset")
 		}
-		_, err = tokensAsset.PutNew(stub)
+		_, err = tokenAsset.PutNew(stub)
 		if err != nil {
 			return nil, errors.WrapError(err, "Error saving asset on blockchain")
 		}
 
 		// Marshal asset back to JSON format
-		tokenJSON, nerr := json.Marshal(tokensAsset)
+		tokenJSON, nerr := json.Marshal(tokenAsset)
 		if nerr != nil {
 			return nil, errors.WrapError(nil, "failed to encode asset to JSON format")
 		}
