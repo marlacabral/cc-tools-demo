@@ -15,7 +15,7 @@ var CreateToken = tx.Transaction{
 	Label:       "Create Token",
 	Description: "Create a Token",
 	Method:      "POST",
-	Callers:     []string{`$org/dMSP`, "orgMSP"},
+	Callers:     []string{"$org3MSP", "$orgMSP"},
 
 	Args: []tx.Argument{
 		{
@@ -34,16 +34,20 @@ var CreateToken = tx.Transaction{
 		},
 		{
 			Tag:         "quant",
-			Label:       "Quant",
-			Description: "ID",
-			DataType:    "string",
-			Required:    true,
+			Label:       "Quantidade",
+			Description: "Quantidade",
+			DataType:    "float64", // Change the data type to float64 for quant
+			Required:    true,      // Make quant a required argument
 		},
 	},
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
 		id, _ := req["id"].(string)
 		prop, _ := req["prop"].(string)
 		quant, _ := req["quant"].(float64)
+
+		if quant <= 0.0 {
+			return nil, errors.WrapError(nil, "Quantity must be greater than zero")
+		}
 
 		tokenMap := make(map[string]interface{})
 		tokenMap["@assetType"] = "token"
@@ -54,6 +58,7 @@ var CreateToken = tx.Transaction{
 		tokenAsset, err := assets.NewAsset(tokenMap)
 		if err != nil {
 			return nil, errors.WrapError(err, "Failed to create a new asset")
+
 		}
 		_, err = tokenAsset.PutNew(stub)
 		if err != nil {
@@ -63,8 +68,9 @@ var CreateToken = tx.Transaction{
 		// Marshal asset back to JSON format
 		tokenJSON, nerr := json.Marshal(tokenAsset)
 		if nerr != nil {
-			return nil, errors.WrapError(nil, "failed to encode asset to JSON format")
+			return nil, errors.WrapError(nil, "Failed to encode asset to JSON format")
 		}
 
 		return tokenJSON, nil
-	}}
+	},
+}

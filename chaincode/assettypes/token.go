@@ -6,18 +6,15 @@ var Token = assets.AssetType{
 	Tag:         "token",
 	Label:       "Token",
 	Description: "Token",
-
 	Props: []assets.AssetProp{
 		{
-			// Primary Key
-			Required: true,
-			IsKey:    true,
 			Tag:      "id",
 			Label:    "ID",
 			DataType: "string",
+			Required: true,
+			IsKey:    true,
 		},
 		{
-			// Composite Key
 			Tag:         "prop",
 			Label:       "Proprietario",
 			Description: "Proprietario",
@@ -26,9 +23,9 @@ var Token = assets.AssetType{
 		},
 		{
 			Tag:         "quant",
-			Label:       "Quant",
-			Description: "ID",
-			DataType:    "string",
+			Label:       "Quantidade",
+			Description: "Quantidade",
+			DataType:    "float64",
 			Required:    true,
 		},
 	},

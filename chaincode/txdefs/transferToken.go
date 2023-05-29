@@ -34,7 +34,7 @@ var TransferToken = tx.Transaction{
 			Tag:         "quantidade",
 			Label:       "quantidade",
 			Description: "quantidade",
-			DataType:    "number",
+			DataType:    "float64",
 		},
 	},
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
