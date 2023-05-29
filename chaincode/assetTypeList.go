@@ -6,7 +6,7 @@ import (
 )
 
 var assetTypeList = []assets.AssetType{
-	assettypes.Person,
+	assettypes.Proprietario,
 	assettypes.Token,
 	assettypes.Library,
 	assettypes.Secret,

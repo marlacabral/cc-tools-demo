@@ -9,13 +9,12 @@ import (
 	tx "github.com/goledgerdev/cc-tools/transactions"
 )
 
-// POST Method
-var CreateToken = tx.Transaction{
-	Tag:         "createToken",
-	Label:       "Create Token",
-	Description: "Create a Token",
+var CriarToken = tx.Transaction{
+	Tag:         "criarToken",
+	Label:       "Criar Token",
+	Description: "Criar Token",
 	Method:      "POST",
-	Callers:     []string{"$org3MSP", "$orgMSP"},
+	Callers:     []string{"$org1MSP", "$orgMSP"},
 
 	Args: []tx.Argument{
 		{
@@ -26,49 +25,70 @@ var CreateToken = tx.Transaction{
 			Required:    true,
 		},
 		{
-			Tag:         "prop",
+			Tag:         "proprietario",
 			Label:       "Proprietario",
-			Description: "Proprietario",
-			DataType:    "string",
+			Description: "proprietario",
+			DataType:    "->proprietario",
 			Required:    true,
 		},
 		{
-			Tag:         "quant",
+			Tag:         "quantidade",
 			Label:       "Quantidade",
 			Description: "Quantidade",
-			DataType:    "float64", // Change the data type to float64 for quant
-			Required:    true,      // Make quant a required argument
+			DataType:    "number",
+			Required:    true,
+		},
+		{
+			Tag:         "burned",
+			Label:       "Burned",
+			Description: "Queima",
+			DataType:    "boolean",
 		},
 	},
 	Routine: func(stub *sw.StubWrapper, req map[string]interface{}) ([]byte, errors.ICCError) {
-		id, _ := req["id"].(string)
-		prop, _ := req["prop"].(string)
-		quant, _ := req["quant"].(float64)
+		proprietarioKey, ok := req["proprietario"].(assets.Key)
+		if !ok {
+			return nil, errors.WrapError(nil, "Parametro proprietario deve ser um ativo.")
+		}
 
-		if quant <= 0.0 {
-			return nil, errors.WrapError(nil, "Quantity must be greater than zero")
+		proprietarioAsset, err := proprietarioKey.Get(stub)
+		if err != nil {
+			return nil, errors.WrapError(err, "Falha ao obter ativo 'proprietário'.")
+		}
+		proprietarioMap := (map[string]interface{})(*proprietarioAsset)
+
+		updatedProprietarioKey := make(map[string]interface{})
+		updatedProprietarioKey["@assetType"] = "proprietario"
+		updatedProprietarioKey["@key"] = proprietarioMap["@key"]
+
+		id, _ := req["id"].(string)
+		quantidade, _ := req["quantidade"].(float64)
+		burned, _ := req["burned"].(bool)
+
+		if quantidade <= 0 {
+			return nil, errors.WrapError(nil, "Quantidade deve ser maior que 0")
 		}
 
 		tokenMap := make(map[string]interface{})
 		tokenMap["@assetType"] = "token"
 		tokenMap["id"] = id
-		tokenMap["prop"] = prop
-		tokenMap["quant"] = quant
+		tokenMap["proprietario"] = updatedProprietarioKey
+		tokenMap["quantidade"] = quantidade
+		tokenMap["burned"] = burned
 
 		tokenAsset, err := assets.NewAsset(tokenMap)
 		if err != nil {
-			return nil, errors.WrapError(err, "Failed to create a new asset")
-
+			return nil, errors.WrapError(err, "Falha ao criar ativo 'token'.")
 		}
+
 		_, err = tokenAsset.PutNew(stub)
 		if err != nil {
-			return nil, errors.WrapError(err, "Error saving asset on blockchain")
+			return nil, errors.WrapError(err, "Erro ao salvar ativo na blockchain.")
 		}
 
-		// Marshal asset back to JSON format
 		tokenJSON, nerr := json.Marshal(tokenAsset)
 		if nerr != nil {
-			return nil, errors.WrapError(nil, "Failed to encode asset to JSON format")
+			return nil, errors.WrapError(nil, "Falha ao converter ativo para JSON.")
 		}
 
 		return tokenJSON, nil

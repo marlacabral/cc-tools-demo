@@ -10,10 +10,7 @@ var txList = []tx.Transaction{
 	tx.CreateAsset,
 	tx.UpdateAsset,
 	tx.DeleteAsset,
-	txdefs.CreateNewLibrary,
-	txdefs.GetNumberOfBooksFromLibrary,
-	txdefs.GetBooksByAuthor,
-	txdefs.TransferToken,
-	txdefs.CreateToken,
-	txdefs.TokenBalance,
+	txdefs.CriarToken,
+	txdefs.ContabilidadeToken,
+	txdefs.TransferirToken,
 }
